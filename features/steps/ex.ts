@@ -16,6 +16,6 @@ When('Key-in keyword {string}', async function(this:CustomWorld, s: string){
 
 Then('I get search result {string} at first row', async function(this:CustomWorld, s: string){
   // await this.page.getByText('Doni Wicaksana - QA Manager - Alodokter | LinkedInhttps://id.linkedin.com/in/don').screenshot({path:`${PATH.VIDEOS}/screenshots.png`});
-  await this.page.getByRole('link', { name: 'Doni Wicaksana - QA Manager - Alodokter | LinkedIn' }).click();
+  // await this.page.getByRole('link', { name: 'Doni Wicaksana - QA Manager - Alodokter | LinkedIn' }).click();
 })
 

@@ -1,35 +1,28 @@
 import { IWorldOptions, setWorldConstructor, World } from '@cucumber/cucumber';
 import { BrowserContext, Page, ChromiumBrowser } from '@playwright/test';
+import { playwrightConfig } from './config';
 import path from 'path';
 
-const REPORTS_PATH = "reports";
-const VIDEOS_PATH = `${REPORTS_PATH}/video`;
 
 export class CustomWorld extends World {
-    static sharedData: { [key: string]: any } = {};
-    // public browser?: ChromiumBrowser;
+    scenarioId: string;
+    scenarioName: string;
     context: BrowserContext;
     page: Page;
 
-
     constructor(options: IWorldOptions) {
         super(options);
+        Object.assign(playwrightConfig, options.parameters);
     }
-
-    // async s(){
-        
-    //     this.browser = await chromium.launch({ headless: false });
-    // }
-    async newTab(browser: ChromiumBrowser){
-
+    async Initx(scenarioId: string, scenarioName: string) {
+        this.scenarioId = scenarioId;
+        this.scenarioName = scenarioName;
+    }
+    async newTab(browser: ChromiumBrowser) {
         try {
-            this.context = await browser.newContext({
-                recordVideo: {
-                    dir: path.resolve(`${VIDEOS_PATH}`),
-                    size: { width: 1920, height: 1080 }
-                },//todo: pindah ke config
-                viewport: { width: 1920, height: 1080 }//todo: pindah ke config
-            });
+            //todo: rename video folder dengan scenarioName (issue nya harus buat interface dulu)
+            this.context = await browser.newContext(playwrightConfig.browser.context);
+            await this.context.tracing.start(playwrightConfig.trace.start);
             this.page = await this.context!.newPage();
         }
         catch (error) {
@@ -38,6 +31,12 @@ export class CustomWorld extends World {
 
         }
     }
+    async traceStop() {
+        let traceStopConfig = {...playwrightConfig.trace.stop};//shallow copy
+        traceStopConfig.path = path.join(traceStopConfig.path, `${this.scenarioId}-${this.scenarioName}.zip`);
+        await this.context.tracing.stop(traceStopConfig);
+    }
 }
 
 setWorldConstructor(CustomWorld);
+
