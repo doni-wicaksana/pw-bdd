@@ -39,7 +39,7 @@ export class CustomWorld extends World {
             this.page = await this.context!.newPage();
         }
         catch (error) {
-            console.log(`browser error due to: ${error}`);
+            console.error(`browser error due to: ${error}`);
             throw new Error(`browser error due to: ${error}`);
 
         }
@@ -51,13 +51,24 @@ export class CustomWorld extends World {
     }
 
     //api
-
+    cleanRequest() {
+        this.lastApiRequest = {
+            request: {
+                url: "",
+                config: {}
+            },
+            response: {}
+        };
+    }
     async sendRequest(nameIt?: string): Promise<any> {
         const req = this.lastApiRequest.request;
         const response = await (await request.newContext()).fetch(req.url, req.config);
-        this.lastApiResponse = await response.json();
-        if (nameIt) this.variables[nameIt] = this.lastApiResponse
-        return this.lastApiResponse;
+        await response.json().then((v)=>{
+            this.lastApiResponse = v;
+            if (nameIt) this.variables[nameIt] = v;
+            this.cleanRequest();
+            return v;
+        });
     }
     //common
     parseStepParameter(parameter: string): any {

@@ -13,7 +13,7 @@ class Dir {
         });
       }
   
-      console.log('Semua file dalam direktori berhasil dihapus');
+      console.error('Semua file dalam direktori berhasil dihapus');
     });
   
   }

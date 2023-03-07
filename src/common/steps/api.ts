@@ -1,10 +1,10 @@
 import { Given, When, Then, DataTable } from '@cucumber/cucumber';
-import { CustomWorld } from '../../src/support/world';
+import { CustomWorld } from '../../support/world';
 // import { request } from 'playwright';
 
 Given('set API method "{method}" and endpoint {string}', async function (this: CustomWorld, method: string, endpoint: string) {
     const req = this.lastApiRequest.request;
-    req.url = endpoint;
+    req.url = this.parseStepParameter(endpoint);
     req.config["method"] = method;
 })
 Given('set API request data:', async function (this: CustomWorld, data: DataTable) {
@@ -47,15 +47,5 @@ When('save response data {string} to {string}', function (this: CustomWorld, pat
         }
     });
     this.variables[variableName] = data;
-    // console.log(this.variables);
 })
 
-When('console log {string}', function(this: CustomWorld, parameter: string) {
-    // console.log(this.variables[variableName]);
-    console.log(this.parseStepParameter(parameter));
-    // console.log(output);
-})
-
-When('set value {string} to variable {string}', function (this: CustomWorld ,value: string, variableName: string) {
-  this.variables[variableName]=value;
-})

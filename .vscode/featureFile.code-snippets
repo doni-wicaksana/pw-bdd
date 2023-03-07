@@ -1,21 +1,38 @@
 {
-	// Place your pw-bdd workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
-	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
-	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
-	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
-	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
-	// Placeholders with the same ids are connected.
-	// Example:
 	"Bdd scenario for API": {
-		// "scope": "javascript,typescript",
 		"prefix": "set API",
 		"body": [
-			"\tGiven set API method \"$1\" and endpoint \"$2\"",
-			"\tGiven set API request data:",
-			"\t\t| type | key | value |",
-			"\t\t| $3 | $4 | $5 |",
-			"\tWhen send API request"
+			"Given set API method \"${1:method}\" and endpoint \"${2:url}\"",
+			"Given set API request data:",
+			"\t| type | key | value |",
+			"\t| ${3:(params/header/data)} | $4 | $5 |",
+			"When send API request"
 		],
-		"description": "bdd scenario for API"
-	}
+		"description": "Bdd scenario for API"
+	},
+	"When set value to variable": {
+		"prefix": "set value to variable",
+		"body": ["set value \"${1:value}\" to variable \"${2:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"send API request": {
+		"prefix": "send API request",
+		"body": ["send API request"],
+		"description": "set value to a variable"
+	},
+	"send API request and keep": {
+		"prefix": "send API request and keep",
+		"body": ["send API request and keep response to \"${1:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"save response data": {
+		"prefix": "save response data",
+		"body": ["save response data \"${1:path}\" to \"${2:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"console log": {
+		"prefix": "console log",
+		"body": ["console log \"${1:value}\""],
+		"description": "set value to a variable"
+	},
 }
