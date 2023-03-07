@@ -2,8 +2,9 @@ module.exports = {
   default: {
     parallel: 1,
     requireModule: ['ts-node/register'],
-    require: ['./src/**/*.ts', './features/steps/**/*.ts'],
+    require: ['./src/**/*.ts', './features/steps/**/*.ts', './features/support/**/*.ts'],
     paths: ['./features/features/**/*.feature'],
+    publishQuiet: true,
     worldParameters: {
       browser: {
         name: "chrome",

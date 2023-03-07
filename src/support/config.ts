@@ -20,7 +20,7 @@ dotenv.config();
 
 export const playwrightConfig = {
     browser: {
-        name: "chrome",
+        name: process.env.BROWSER || "chrome",
         launchOption: {
             headless: false,
         },

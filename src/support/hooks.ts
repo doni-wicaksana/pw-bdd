@@ -8,8 +8,6 @@ let browser: ChromiumBrowser | FirefoxBrowser | WebKitBrowser;
 setDefaultTimeout(60000);
 
 BeforeAll(async function () {
-  playwrightConfig.browser
-
   switch (playwrightConfig.browser.name) {
     case 'chrome':
       browser = await chromium.launch(playwrightConfig.browser.launchOption);
@@ -25,9 +23,12 @@ BeforeAll(async function () {
   }
 });
 
-Before(async function (this: CustomWorld,param) {
-  await this.Initx(param.testCaseStartedId,param.pickle.name.replace(/\W/g, "_"));
-  await this.newTab(browser);
+Before({ tags: '@skip' }, function () {
+  return 'skipped';
+});
+
+Before(async function (this: CustomWorld, param) {
+  await this.init(param.testCaseStartedId, param.pickle.name.replace(/\W/g, "_"), browser);
 });
 
 // BeforeStep({tags: "@foo"}, function () {
@@ -42,9 +43,11 @@ Before(async function (this: CustomWorld,param) {
 // });
 
 After(async function (this: CustomWorld) {
-  await this.page!.waitForTimeout(2000);//todo: need optimized
-  await this.traceStop();
-  await this.context.close();
+  if (this.context) {
+    if (this.page) await this.page.waitForTimeout(2000);//todo: need optimized
+    await this.traceStop();
+    await this.context.close();
+  }
 });
 
 AfterAll(async function () {

@@ -9,6 +9,10 @@ TODO
 10. rename tracet folder dengan timestamp
 11. rename video (hati-hati ubah config: coba gunakan shallow copy agar pindah scenario tidak melekat)
 12. world paramter di dalam constructor? tambahkan scenarioid dan name
+13. API
+15. hapus video
+16. hapus traced
+17. buat unit test
 
 note:
 memastikan dua scenari tidak bisa jalan secara paralel dah sesuai urutan 
@@ -17,3 +21,4 @@ memastikan dua scenari tidak bisa jalan secara paralel dah sesuai urutan
 Done:
 2. record video
 4. tracet
+14. tambahkan @skip untuk skip feature atau scenario
