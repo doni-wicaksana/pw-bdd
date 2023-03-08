@@ -8,17 +8,20 @@ TODO
 9. compare two image, base on platform, browser, and size
 10. rename tracet folder dengan timestamp
 11. rename video (hati-hati ubah config: coba gunakan shallow copy agar pindah scenario tidak melekat)
-12. world paramter di dalam constructor? tambahkan scenarioid dan name
-13. API
 15. hapus video
 16. hapus traced
-17. buat unit test
+17. tambahkan default config dari env
+18. read path pindahkan dari api step ke common function
+19. issue di config default
 
 note:
 memastikan dua scenari tidak bisa jalan secara paralel dah sesuai urutan 
 =>https://github.com/cucumber/cucumber-js/blob/main/docs/parallel.md
 
 Done:
+12. world paramter di dalam constructor? tambahkan scenarioid dan name
+13. API
+17. buat unit test
 2. record video
 4. tracet
 14. tambahkan @skip untuk skip feature atau scenario

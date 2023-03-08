@@ -1,11 +1,14 @@
 import { IWorldOptions, setWorldConstructor, World } from '@cucumber/cucumber';
+import { Pickle } from '@cucumber/messages';
 import { BrowserContext, Page, ChromiumBrowser, APIRequestContext, request } from '@playwright/test';
 import { playwrightConfig } from './config';
 import path from 'path';
+import { existsSync, writeFileSync, readFileSync, createWriteStream, mkdirSync } from 'fs';
+import { compareImages } from './images';
+import { PNG } from 'pngjs';
 
 export class CustomWorld extends World {
-    scenarioId: string;
-    scenarioName: string;
+    scenario: Pickle;
     browser: ChromiumBrowser;
     context: BrowserContext;
     page: Page;
@@ -22,18 +25,19 @@ export class CustomWorld extends World {
 
     constructor(options: IWorldOptions) {
         super(options);
-        delete options.parameters.browser.name;//setting browser tidak boleh di ubah
+        // delete options.parameters.browser.name;//setting browser tidak boleh di ubah
         Object.assign(playwrightConfig, options.parameters);
     }
-    async init(scenarioId: string, scenarioName: string, browser: ChromiumBrowser) {
-        this.scenarioId = scenarioId;
-        this.scenarioName = scenarioName;
+    async init(scenario: Pickle, browser: ChromiumBrowser) {
+        this.scenario = scenario;
+        this.scenario["name_"] = scenario.name.replace(/\W/g, "_");
         this.browser = browser;
         await this.newTab();
     }
     async newTab() {
         try {
-            //todo: rename video folder dengan scenarioName (issue nya harus buat interface dulu)
+            //todo: rename video folder dengan scenario.name (issue nya harus buat interface dulu)
+            // if(!this.context) //newcontext = open new browser
             this.context = await this.browser.newContext(playwrightConfig.browser.context);
             await this.context.tracing.start(playwrightConfig.trace.start);
             this.page = await this.context!.newPage();
@@ -46,7 +50,7 @@ export class CustomWorld extends World {
     }
     async traceStop() {
         let traceStopConfig = { ...playwrightConfig.trace.stop };//shallow copy
-        traceStopConfig.path = path.join(traceStopConfig.path, `${this.scenarioId}-${this.scenarioName}.zip`);
+        traceStopConfig.path = path.join(traceStopConfig.path, `${this.scenario.id}-${this.scenario["name_"]}.zip`);
         await this.context.tracing.stop(traceStopConfig);
     }
 
@@ -63,7 +67,7 @@ export class CustomWorld extends World {
     async sendRequest(nameIt?: string): Promise<any> {
         const req = this.lastApiRequest.request;
         const response = await (await request.newContext()).fetch(req.url, req.config);
-        await response.json().then((v)=>{
+        await response.json().then((v) => {
             this.lastApiResponse = v;
             if (nameIt) this.variables[nameIt] = v;
             this.cleanRequest();
@@ -86,6 +90,31 @@ export class CustomWorld extends World {
             return output;
         }
     }
-}
+    async matchingTheScreenshot(screenshot: Buffer, name: string, threshold: number) {
+        let imagePath = path.join(
+            playwrightConfig.screenshotPath,
+            this.scenario.uri,
+            process.platform,
+            playwrightConfig.browser.name,
+            `${name}.png`);
 
+        if (existsSync(imagePath)) {
+            let oldImage = PNG.sync.read(readFileSync(imagePath));
+            let newImage = PNG.sync.read(screenshot);
+            compareImages(oldImage, newImage)
+                .then(({ numDiffPixels, diff }) => {
+                    // console.log(`Number of different pixels: ${numDiffPixels}`);
+                    diff.pack().pipe(createWriteStream('diff.png'));
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+        else {
+            mkdirSync(path.dirname(imagePath), { recursive: true });
+            writeFileSync(imagePath, screenshot);
+            console.log("fresh new screenshoot.");
+        }
+    }
+}
 setWorldConstructor(CustomWorld);

@@ -1,5 +1,18 @@
-const { defineParameterType } = require('@cucumber/cucumber');
+import { defineParameterType } from '@cucumber/cucumber';
 
+
+// defineParameterType({
+//   name: 'optional',
+//   regexp: /(.*)?/
+// })
+
+// defineParameterType({
+//   name: 'url',
+//   regexp: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
+//   transformer: function (s: string) {
+//     return s.toLowerCase();
+//   }
+// });
 
 defineParameterType({
   name: 'method',
@@ -7,4 +20,4 @@ defineParameterType({
   transformer(s: string) {
     return s.toLowerCase();
   },
-})
+});

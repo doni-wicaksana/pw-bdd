@@ -1,10 +1,7 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { Locator } from 'playwright';
-import { CustomWorld } from '../../src/support/world'
+import { CustomWorld } from '../../src/support/world';
 
-Given('Open new page {string}', async function (this: CustomWorld, s: string) {
-  await this.page.goto(s);
-})
 
 When('Key-in keyword {string}', async function (this: CustomWorld, s: string) {
   const inputField: Locator = this.page.getByPlaceholder('Search the web');

@@ -33,6 +33,7 @@ export const playwrightConfig = {
         }
     },
     reportPath: "reports",
+    screenshotPath: "reports/screenshots",
     trace: {
         start: { screenshots: true, snapshots: true },
         stop: { path: "reports/trace" }

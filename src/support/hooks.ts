@@ -28,7 +28,7 @@ Before({ tags: '@skip' }, function () {
 });
 
 Before(async function (this: CustomWorld, param) {
-  await this.init(param.testCaseStartedId, param.pickle.name.replace(/\W/g, "_"), browser);
+  await this.init(param.pickle, browser);
 });
 
 // BeforeStep({tags: "@foo"}, function () {
