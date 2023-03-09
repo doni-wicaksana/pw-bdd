@@ -11,13 +11,11 @@ Given('Open new tab {string}', async function (this: CustomWorld, s: string) {
     await this.page.goto(s);
 })
 
-//tambahkan optional config untuk threshold
-Given('Matching page screenshot', async function (this: CustomWorld) {
-    Promise.all(
-        [this.page.waitForLoadState("domcontentloaded"),
-        this.page.waitForLoadState("domcontentloaded")]
-    ).then(() => {
-        this.page.screenshot()
-        .then((screenshot) => { this.matchingTheScreenshot(screenshot, "sample", 0.2) });
-    });
+Given('Match screenshot of page {string}', async function (this: CustomWorld,name: string) {
+    await this.page.waitForLoadState("load");
+    await this.page.waitForLoadState("domcontentloaded");
+    let screenshot = await this.page.screenshot();
+    let compareResult = await this.matchingTheScreenshot(screenshot, name);
+    expect(compareResult.numDiffPixels,`Image Not Match: Number of different pixels: ${compareResult.numDiffPixels}`)
+        .toBeLessThanOrEqual(0);
 })

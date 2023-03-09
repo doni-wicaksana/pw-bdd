@@ -33,7 +33,12 @@ export const playwrightConfig = {
         }
     },
     reportPath: "reports",
-    screenshotPath: "reports/screenshots",
+    visualRegresion:{
+        pixelmatchOptions:{threshold:0.2},
+        screenshotPath: "reports/screenshots",
+        saveDifferentAs:["file"],
+        unMatchPath: "reports/screenshots",
+    },
     trace: {
         start: { screenshots: true, snapshots: true },
         stop: { path: "reports/trace" }

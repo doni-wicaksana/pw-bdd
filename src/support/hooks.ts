@@ -27,6 +27,10 @@ Before({ tags: '@skip' }, function () {
   return 'skipped';
 });
 
+Before({ tags: '@apiOnly or @onlyApi or @withoutBrowser', name:"Without Browser"}, async function (this: CustomWorld) {
+  this.withBrowser = false;
+});
+
 Before(async function (this: CustomWorld, param) {
   await this.init(param.pickle, browser);
 });

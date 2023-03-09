@@ -1,15 +1,16 @@
 import { IWorldOptions, setWorldConstructor, World } from '@cucumber/cucumber';
 import { Pickle } from '@cucumber/messages';
-import { BrowserContext, Page, ChromiumBrowser, APIRequestContext, request } from '@playwright/test';
-import { playwrightConfig } from './config';
+import { BrowserContext, Page, APIRequestContext, request, Browser } from '@playwright/test';
+import { playwrightConfig as pwConfig } from './config';
 import path from 'path';
 import { existsSync, writeFileSync, readFileSync, createWriteStream, mkdirSync } from 'fs';
-import { compareImages } from './images';
+import { compareImages, ICompareResult } from './images';
 import { PNG } from 'pngjs';
+import { PixelmatchOptions } from 'pixelmatch';
 
 export class CustomWorld extends World {
     scenario: Pickle;
-    browser: ChromiumBrowser;
+    browser: Browser;
     context: BrowserContext;
     page: Page;
     // lastApiContext:APIRequestContext;
@@ -22,24 +23,30 @@ export class CustomWorld extends World {
     };
     lastApiResponse: Record<string, any>;
     variables: Record<string, any> = {};
+    withBrowser: boolean = true;
 
     constructor(options: IWorldOptions) {
         super(options);
-        // delete options.parameters.browser.name;//setting browser tidak boleh di ubah
-        Object.assign(playwrightConfig, options.parameters);
+        /*prevent update cause: this two option set by BeforAll which Browser already launch =>*/
+        options.parameters.browser.name = pwConfig.browser.name;
+        options.parameters.browser.context = pwConfig.browser.context;
+        /*<= prevent update cause: this two option set by BeforAll which Browser already launch */
+        Object.assign(pwConfig, options.parameters);
     }
-    async init(scenario: Pickle, browser: ChromiumBrowser) {
+    async init(scenario: Pickle, browser: Browser) {
         this.scenario = scenario;
         this.scenario["name_"] = scenario.name.replace(/\W/g, "_");
-        this.browser = browser;
-        await this.newTab();
+        if (this.withBrowser) {
+            this.browser = browser;
+            await this.newTab();
+        }
     }
     async newTab() {
         try {
             //todo: rename video folder dengan scenario.name (issue nya harus buat interface dulu)
             // if(!this.context) //newcontext = open new browser
-            this.context = await this.browser.newContext(playwrightConfig.browser.context);
-            await this.context.tracing.start(playwrightConfig.trace.start);
+            this.context = await this.browser.newContext(pwConfig.browser.context);
+            await this.context.tracing.start(pwConfig.trace.start);
             this.page = await this.context!.newPage();
         }
         catch (error) {
@@ -49,7 +56,7 @@ export class CustomWorld extends World {
         }
     }
     async traceStop() {
-        let traceStopConfig = { ...playwrightConfig.trace.stop };//shallow copy
+        let traceStopConfig = { ...pwConfig.trace.stop };//shallow copy
         traceStopConfig.path = path.join(traceStopConfig.path, `${this.scenario.id}-${this.scenario["name_"]}.zip`);
         await this.context.tracing.stop(traceStopConfig);
     }
@@ -90,21 +97,36 @@ export class CustomWorld extends World {
             return output;
         }
     }
-    async matchingTheScreenshot(screenshot: Buffer, name: string, threshold: number) {
+    async matchingTheScreenshot(screenshot: Buffer, name: string,output?:Array<string>,options?: PixelmatchOptions) :Promise<ICompareResult>{
         let imagePath = path.join(
-            playwrightConfig.screenshotPath,
+            pwConfig.visualRegresion.screenshotPath,
             this.scenario.uri,
             process.platform,
-            playwrightConfig.browser.name,
+            pwConfig.browser.name,
             `${name}.png`);
+        let diffImagePath = path.join(
+            pwConfig.visualRegresion.screenshotPath,
+            this.scenario.uri,
+            process.platform,
+            pwConfig.browser.name,
+            `diff_${name}.png`);
+        let result: ICompareResult = { numDiffPixels: 0, diff: undefined };
+        let pixelmatchOpt:PixelmatchOptions = pwConfig.visualRegresion.pixelmatchOptions;
+        Object.assign(pixelmatchOpt,options);
 
+        output = output || pwConfig.visualRegresion.saveDifferentAs || ["file","attachment"];
         if (existsSync(imagePath)) {
             let oldImage = PNG.sync.read(readFileSync(imagePath));
             let newImage = PNG.sync.read(screenshot);
-            compareImages(oldImage, newImage)
+            await compareImages(oldImage, newImage, pixelmatchOpt)
                 .then(({ numDiffPixels, diff }) => {
-                    // console.log(`Number of different pixels: ${numDiffPixels}`);
-                    diff.pack().pipe(createWriteStream('diff.png'));
+                    result = { numDiffPixels, diff };
+                    if (numDiffPixels) {
+                        if(output.includes("file")){
+                        mkdirSync(path.dirname(diffImagePath), { recursive: true });
+                        diff.pack().pipe(createWriteStream(diffImagePath));}
+                        if(output.includes("attachment")){this.attach(PNG.sync.write(diff),'image/png');}
+                    }
                 })
                 .catch(error => {
                     console.error(error);
@@ -113,8 +135,23 @@ export class CustomWorld extends World {
         else {
             mkdirSync(path.dirname(imagePath), { recursive: true });
             writeFileSync(imagePath, screenshot);
-            console.log("fresh new screenshoot.");
+            this.log(`Since there are no previous screenshots, this screenshot will be saved as a reference for future comparisons.`);
+            this.attach(screenshot,'image/png');
         }
+        return result;
+    }
+    getObjectValueByPath(obejct: Record<string, any>, valuePath: string): any {
+        let dataPathString: string = "";
+        valuePath.split(/[\[\].]/).filter(Boolean).forEach((propName) => {
+            if (obejct.hasOwnProperty(propName)) {
+                obejct = obejct[propName];
+                dataPathString += propName;
+            }
+            else {
+                throw new Error(`Object ${dataPathString ? `"${dataPathString}" ` : ""}does not contain the "${propName}" property.`);
+            }
+        });
+        return obejct;
     }
 }
 setWorldConstructor(CustomWorld);

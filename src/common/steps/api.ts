@@ -35,17 +35,6 @@ When('send API request and keep response to {string}', async function (this: Cus
 })
 
 When('save response data {string} to {string}', function (this: CustomWorld, path: string, variableName: string) {
-    let data = this.lastApiResponse;
-    let dataPathString: string = "";
-    let x =path.split(/[\[\].]/).filter(Boolean).forEach((propName) => {
-        if (data.hasOwnProperty(propName)) {
-            data = data[propName];
-            dataPathString += propName;
-        }
-        else {
-            throw new Error(`Response ${dataPathString} does not contain the "${propName}" property.`);
-        }
-    });
-    this.variables[variableName] = data;
+    this.variables[variableName] = this.getObjectValueByPath(this.lastApiResponse,path);
 })
 

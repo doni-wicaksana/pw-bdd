@@ -13,6 +13,13 @@ import { defineParameterType } from '@cucumber/cucumber';
 //     return s.toLowerCase();
 //   }
 // });
+// defineParameterType({
+//   name: 'word',
+//   regexp: /['"]?([A-Z][a-z]+)['"]?/,
+//   transformer(s: string) {
+//     return s.replace(/['"]?([A-Z][a-z]+)['"]?/,"$1");
+//   },
+// });
 
 defineParameterType({
   name: 'method',

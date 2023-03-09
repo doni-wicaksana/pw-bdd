@@ -4,13 +4,11 @@ module.exports = {
     requireModule: ['ts-node/register'],
     require: ['./src/**/*.ts', './features/steps/**/*.ts', './features/support/**/*.ts'],
     paths: ['./features/features/**/*.feature'],
+    format:['json:reports/cucumber-report.json', 'html:reports/cucumber-report.html'],
+    formatOptions:{"snippetInterface":"async-await"},
     publishQuiet: true,
     worldParameters: {
       browser: {
-        name: "chrome",
-        launchOption: {
-          headless: false,
-        },
         context: {
           recordVideo: {
             dir: "reports/video",

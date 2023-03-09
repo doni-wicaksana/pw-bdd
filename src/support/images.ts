@@ -1,18 +1,18 @@
 import { PNG } from 'pngjs';
-import pixelmatch from 'pixelmatch';
+import pixelmatch, { PixelmatchOptions } from 'pixelmatch';
 
 export interface ICompareResult {
   numDiffPixels: number;
   diff: PNG;
 }
 //todo add { threshold: 0.1 } parameter
-export function compareImages(img1: PNG, img2: PNG): Promise<ICompareResult> {
+export function compareImages(img1: PNG, img2: PNG, options?: PixelmatchOptions): Promise<ICompareResult> {
   return new Promise((resolve, reject) => {
     try {
         const diff = new PNG({ width: img1.width, height: img1.height });
         const numDiffPixels = pixelmatch(
           img1.data, img2.data, diff.data, img1.width, img1.height,
-          { threshold: 0.1 }
+          options
         );
         resolve({ numDiffPixels, diff });
     } catch (error) {
