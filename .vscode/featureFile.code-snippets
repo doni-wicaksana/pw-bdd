@@ -1,0 +1,38 @@
+{
+	"Bdd scenario for API": {
+		"prefix": "set API",
+		"body": [
+			"Given set API method \"${1:method}\" and endpoint \"${2:url}\"",
+			"Given set API request data:",
+			"\t| type | key | value |",
+			"\t| ${3:(params/header/data)} | $4 | $5 |",
+			"When send API request"
+		],
+		"description": "Bdd scenario for API"
+	},
+	"When set value to variable": {
+		"prefix": "set value to variable",
+		"body": ["set value \"${1:value}\" to variable \"${2:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"send API request": {
+		"prefix": "send API request",
+		"body": ["send API request"],
+		"description": "set value to a variable"
+	},
+	"send API request and keep": {
+		"prefix": "send API request and keep",
+		"body": ["send API request and keep response to \"${1:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"save response data": {
+		"prefix": "save response data",
+		"body": ["save response data \"${1:path}\" to \"${2:variableName}\""],
+		"description": "set value to a variable"
+	},
+	"console log": {
+		"prefix": "console log",
+		"body": ["console log \"${1:value}\""],
+		"description": "set value to a variable"
+	},
+}

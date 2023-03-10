@@ -4,8 +4,9 @@
   "description": "This tools to combine Playwright and BDD (cucumber)",
   "main": "index.js",
   "scripts": {
-    "test":  "npx cucumber-js",
-    "record":  "npx playwright codegen"
+    "test": "npx cucumber-js",
+    "record": "npx playwright codegen",
+    "trace": "npx playwright show-trace"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,15 @@
   "dependencies": {
     "@cucumber/cucumber": "^8.11.1",
     "@playwright/test": "^1.31.0",
+    "dotenv": "^16.0.3",
     "playwright": "^1.31.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@types/pixelmatch": "^5.2.4",
+    "@types/pngjs": "^6.0.1",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
   }
 }

@@ -1,7 +1,31 @@
+TODO
 1. multiple page
-2. record video
-3. report
-4. tracet
 5. upload file
+7. switch between web dan app
+10. rename tracet folder dengan timestamp
+11. rename video (hati-hati ubah config: coba gunakan shallow copy agar pindah scenario tidak melekat)
+15. hapus video
+16. hapus traced
+17. tambahkan default config dari env
+20. faker
+
+won't do:
 6. clean report at start
-7 switch between web dan app
+8. run multiple browser secara paralel
+
+note:
+memastikan dua scenari tidak bisa jalan secara paralel dah sesuai urutan 
+=>https://github.com/cucumber/cucumber-js/blob/main/docs/parallel.md
+
+Done:
+12. world paramter di dalam constructor? tambahkan scenarioid dan name
+13. API
+17. buat unit test
+2. record video
+4. tracet
+14. tambahkan @skip untuk skip feature atau scenario
+19. issue di config default
+21. threshold
+18. read path pindahkan dari api step ke common function
+3. report
+9. compare two image, base on platform, browser, and size
