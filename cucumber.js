@@ -17,11 +17,16 @@ module.exports = {
           viewport: { width: 1920, height: 1080 },
         }
       },
-      reportPath: "reports",
-      trace: {
-          start: { screenshots: true, snapshots: true },
-          stop: { path: "reports/trace" }
-      }
+      visualRegresion:{
+          pixelmatchOptions:{threshold:0.2},
+          screenshotPath: "reports/screenshots",
+          saveDifferentAs:["file","attachment"],
+          unMatchPath: "reports/screenshots",
+      },
+      // trace: {
+      //     start: { screenshots: true, snapshots: true },
+      //     stop: { path: "reports/trace" }
+      // }
     },
   }
 }

@@ -5,7 +5,7 @@ import playwrightConfig from './config';
 
 
 let browser: ChromiumBrowser | FirefoxBrowser | WebKitBrowser;
-setDefaultTimeout(60000);
+setDefaultTimeout(process.env.PWDEBUG ? -1 :60000);
 
 BeforeAll(async function () {
   switch (playwrightConfig.browser.name) {
@@ -48,8 +48,8 @@ Before(async function (this: CustomWorld, param) {
 
 After(async function (this: CustomWorld) {
   if (this.context) {
-    if (this.page) await this.page.waitForTimeout(2000);//todo: need optimized
     await this.traceStop();
+    if (this.page) await this.page.waitForTimeout(2000);//todo: need optimized
     await this.context.close();
   }
 });
