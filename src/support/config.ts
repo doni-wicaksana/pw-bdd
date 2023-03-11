@@ -22,7 +22,7 @@ export const playwrightConfig = {
     browser: {
         name: process.env.BROWSER || "chrome",
         launchOption: {
-            headless: false,
+            headless: Boolean(process.env.HEADLESS) || false,
         },
         context: {
             // recordVideo: {
@@ -32,7 +32,6 @@ export const playwrightConfig = {
             viewport: { width: 1920, height: 1080 },
         }
     },
-    reportPath: "reports",
     visualRegresion:{
         pixelmatchOptions:{threshold:0.2},
         screenshotPath: "reports/screenshots",

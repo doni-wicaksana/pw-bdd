@@ -29,7 +29,6 @@ export class CustomWorld extends World {
         super(options);
         /*prevent update cause: this two option set by BeforAll which Browser already launch =>*/
         options.parameters.browser.name = pwConfig.browser.name;
-        options.parameters.browser.context = pwConfig.browser.context;
         /*<= prevent update cause: this two option set by BeforAll which Browser already launch */
         Object.assign(pwConfig, options.parameters);
     }
@@ -59,6 +58,8 @@ export class CustomWorld extends World {
         let traceStopConfig = { ...pwConfig.trace.stop };//shallow copy
         traceStopConfig.path = path.join(traceStopConfig.path, `${this.scenario.id}-${this.scenario["name_"]}.zip`);
         await this.context.tracing.stop(traceStopConfig);
+        this.attach(`To trace, run this command in the terminal.
+        npm run trace ${traceStopConfig.path}`);
     }
 
     //api
