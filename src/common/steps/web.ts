@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
+// import { expect } from 'chai';
 import { expect } from '@playwright/test';
 import { CustomWorld } from '../../support/world';
 
@@ -16,6 +17,8 @@ Given('Match screenshot of page {string}', async function (this: CustomWorld,nam
     await this.page.waitForLoadState("domcontentloaded");
     let screenshot = await this.page.screenshot();
     let compareResult = await this.matchingTheScreenshot(screenshot, name);
+        // expect(compareResult.numDiffPixels,`Image Not Match: Number of different pixels: ${compareResult.numDiffPixels}`)
+        // .to.be.lessThanOrEqual(0);
     expect(compareResult.numDiffPixels,`Image Not Match: Number of different pixels: ${compareResult.numDiffPixels}`)
         .toBeLessThanOrEqual(0);
 })
