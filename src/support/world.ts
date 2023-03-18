@@ -7,6 +7,7 @@ import { existsSync, writeFileSync, readFileSync, createWriteStream, mkdirSync }
 import { compareImages, ICompareResult } from './images';
 import { PNG } from 'pngjs';
 import { PixelmatchOptions } from 'pixelmatch';
+import { faker } from "@faker-js/faker";
 
 export class CustomWorld extends World {
     scenario: Pickle;
@@ -85,20 +86,24 @@ export class CustomWorld extends World {
     //common
     parseStepParameter(parameter: string): any {
         const matchAsAVar = parameter.match(/^{{\w+}}$/);
-        if (matchAsAVar) return this.variables[parameter.replace(/{{(\w+)}}/, "$1")];
+        if (matchAsAVar) return this.variables[parameter.replace(/{{(\w+)}}/, "$1")];//Return object not string
         else { //return as string
-            const regex = /{{(\w+)}}/gm;
+            const regex = /{{(@?[\w.()]+)}}/gm;
             const match = parameter.match(regex);
             let output = parameter;
             match?.forEach((m) => {
-                let replacement = this.variables[m.replace(/{{(\w+)}}/, "$1")]
-                if (replacement)
-                    output = output.replace(m, replacement);
+                let replacement;
+                if (m.match(/{{@faker\..+}}/)) {
+                    replacement = faker.helpers.fake(m.replace(/{{@faker\.(.+)}}/, "{{$1}}"));
+                } else if (m.match(/{{(\w+)}}/)) {
+                    replacement = this.variables[m.replace(/{{(\w+)}}/, "$1")];
+                } 
+                if (replacement) output = output.replace(m, replacement);
             });
             return output;
         }
     }
-    async matchingTheScreenshot(screenshot: Buffer, name: string,output?:Array<string>,options?: PixelmatchOptions) :Promise<ICompareResult>{
+    async matchingTheScreenshot(screenshot: Buffer, name: string, output?: Array<string>, options?: PixelmatchOptions): Promise<ICompareResult> {
         let imagePath = path.join(
             pwConfig.visualRegresion.screenshotPath,
             this.scenario.uri,
@@ -112,10 +117,10 @@ export class CustomWorld extends World {
             pwConfig.browser.name,
             `diff_${name}.png`);
         let result: ICompareResult = { numDiffPixels: 0, diff: undefined };
-        let pixelmatchOpt:PixelmatchOptions = pwConfig.visualRegresion.pixelmatchOptions;
-        Object.assign(pixelmatchOpt,options);
+        let pixelmatchOpt: PixelmatchOptions = pwConfig.visualRegresion.pixelmatchOptions;
+        Object.assign(pixelmatchOpt, options);
 
-        output = output || pwConfig.visualRegresion.saveDifferentAs || ["file","attachment"];
+        output = output || pwConfig.visualRegresion.saveDifferentAs || ["file", "attachment"];
         if (existsSync(imagePath)) {
             let oldImage = PNG.sync.read(readFileSync(imagePath));
             let newImage = PNG.sync.read(screenshot);
@@ -123,10 +128,11 @@ export class CustomWorld extends World {
                 .then(({ numDiffPixels, diff }) => {
                     result = { numDiffPixels, diff };
                     if (numDiffPixels) {
-                        if(output.includes("file")){
-                        mkdirSync(path.dirname(diffImagePath), { recursive: true });
-                        diff.pack().pipe(createWriteStream(diffImagePath));}
-                        if(output.includes("attachment")){this.attach(PNG.sync.write(diff),'image/png');}
+                        if (output.includes("file")) {
+                            mkdirSync(path.dirname(diffImagePath), { recursive: true });
+                            diff.pack().pipe(createWriteStream(diffImagePath));
+                        }
+                        if (output.includes("attachment")) { this.attach(PNG.sync.write(diff), 'image/png'); }
                     }
                 })
                 .catch(error => {
@@ -137,7 +143,7 @@ export class CustomWorld extends World {
             mkdirSync(path.dirname(imagePath), { recursive: true });
             writeFileSync(imagePath, screenshot);
             this.log(`Since there are no previous screenshots, this screenshot will be saved as a reference for future comparisons.`);
-            this.attach(screenshot,'image/png');
+            this.attach(screenshot, 'image/png');
         }
         return result;
     }

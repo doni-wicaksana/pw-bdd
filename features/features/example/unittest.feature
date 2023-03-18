@@ -1,6 +1,7 @@
 @apiOnly
 # @skip
 Feature: Unit test
+
   Scenario Outline: test save object part by path to variable
     * set API method "get" and endpoint "https://reqres.in/api/users?page=2"
     When send API request
@@ -15,7 +16,8 @@ Feature: Unit test
   Scenario Outline: run test set variable
     When set value "varible1" to variable "var"
     When expect "<value>" = "<expect>"
-    Examples:
+    # Then console log "<value>"
+    Examples: 
       | value                            | expect                             |
       | var                              | var                                |
       | {var}                            | {var}                              |
@@ -25,3 +27,12 @@ Feature: Unit test
       | tes{{{var}}}                     | tes{varible1}                      |
       | tes{{var}}dnd{{ddd}}             | tesvarible1dnd{{ddd}}              |
       | tes{{var}}dnd{{ddd}} and {{var}} | tesvarible1dnd{{ddd}} and varible1 |
+@skip
+  Scenario Outline: faker
+    Then console log "<value>"
+    Examples: 
+      | value                                             |expect|
+      | {{@faker.name.firstName}}                         |success|
+      | {{@faker.datatype.number({'min': 10,'max': 50})}} |error|
+      | {{@faker.random.numeric(5)}}                      |success|
+      | {{@faker.random.words(5)}}                        |success|
