@@ -88,7 +88,7 @@ export class CustomWorld extends World {
         const matchAsAVar = parameter.match(/^{{\w+}}$/);
         if (matchAsAVar) return this.variables[parameter.replace(/{{(\w+)}}/, "$1")];//Return object not string
         else { //return as string
-            const regex = /{{(@?[\w.()]+)}}/gm;
+            const regex = /{{(?:[^{]{?)+[^}]}}/gm;
             const match = parameter.match(regex);
             let output = parameter;
             match?.forEach((m) => {
