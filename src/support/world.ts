@@ -8,6 +8,7 @@ import { compareImages, ICompareResult } from './images';
 import { PNG } from 'pngjs';
 import { PixelmatchOptions } from 'pixelmatch';
 import { faker } from "@faker-js/faker";
+import { stringParser } from './utils';
 
 export class CustomWorld extends World {
     scenario: Pickle;
@@ -88,34 +89,29 @@ export class CustomWorld extends World {
         const matchAsAVar = parameter.match(/^{{\w+}}$/);
         if (matchAsAVar) return this.variables[parameter.replace(/{{(\w+)}}/, "$1")];//Return object not string
         else { //return as string
-            const regex = /{{(?:[^{]{?)+[^}]}}/gm;
-            const match = parameter.match(regex);
-            let output = parameter;
-            match?.forEach((m) => {
-                let replacement;
-                if (m.match(/{{@faker\..+}}/)) {
-                    replacement = faker.helpers.fake(m.replace(/{{@faker\.(.+)}}/, "{{$1}}"));
-                } else if (m.match(/{{(\w+)}}/)) {
-                    replacement = this.variables[m.replace(/{{(\w+)}}/, "$1")];
-                } 
-                if (replacement) output = output.replace(m, replacement);
+            parameter = stringParser(parameter,/{{(\w+)}}/gm,(m)=>{
+                return this.variables[m.replace(/{{(\w+)}}/, "$1")];
             });
-            return output;
+            parameter = stringParser(parameter,/{{@faker\.(.+)}}/gm,(m)=>{
+                return faker.helpers.fake(m.replace(/{{@faker\.(.+)}}/, "{{$1}}"));
+            });
+            return parameter;
         }
     }
     async matchingTheScreenshot(screenshot: Buffer, name: string, output?: Array<string>, options?: PixelmatchOptions): Promise<ICompareResult> {
+        let newImage = PNG.sync.read(screenshot);
         let imagePath = path.join(
             pwConfig.visualRegresion.screenshotPath,
             this.scenario.uri,
             process.platform,
             pwConfig.browser.name,
-            `${name}.png`);
+            `${name}_${newImage.width}X${newImage.height}.png`);
         let diffImagePath = path.join(
             pwConfig.visualRegresion.screenshotPath,
             this.scenario.uri,
             process.platform,
             pwConfig.browser.name,
-            `diff_${name}.png`);
+            `diff_${name}_${newImage.width}X${newImage.height}.png`);
         let result: ICompareResult = { numDiffPixels: 0, diff: undefined };
         let pixelmatchOpt: PixelmatchOptions = pwConfig.visualRegresion.pixelmatchOptions;
         Object.assign(pixelmatchOpt, options);

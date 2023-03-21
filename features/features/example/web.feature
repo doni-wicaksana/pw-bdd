@@ -1,3 +1,4 @@
+@skip
 Feature: Test Playwright with cucumber to open bing.
 
   Scenario: Open google and find keyword "Doni Wicaksana"

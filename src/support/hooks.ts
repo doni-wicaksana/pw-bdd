@@ -27,7 +27,7 @@ Before({ tags: '@skip' }, function () {
   return 'skipped';
 });
 
-Before({ tags: '@apiOnly or @onlyApi or @withoutBrowser', name:"Without Browser"}, async function (this: CustomWorld) {
+Before({ tags: '@noBrowser', name:"Without Browser"}, async function (this: CustomWorld) {
   this.withBrowser = false;
 });
 

@@ -1,4 +1,4 @@
-@apiOnly
+# @noBrowser
 # @skip
 Feature: Unit test
 
@@ -27,12 +27,14 @@ Feature: Unit test
       | tes{{{var}}}                     | tes{varible1}                      |
       | tes{{var}}dnd{{ddd}}             | tesvarible1dnd{{ddd}}              |
       | tes{{var}}dnd{{ddd}} and {{var}} | tesvarible1dnd{{ddd}} and varible1 |
-@skip
+      | tes{{ test {{var}}}} | tes{{ test varible1}} |
+# @skip
   Scenario Outline: faker
+    When set value "1" to variable "min"
     Then console log "<value>"
     Examples: 
       | value                                             |expect|
       | {{@faker.name.firstName}}                         |success|
-      | {{@faker.datatype.number({'min': 10,'max': 50})}} |error|
+      | {{@faker.helpers.arrayElement([1,2,3,4,5,6,7,8,9])}} |error|
       | {{@faker.random.numeric(5)}}                      |success|
       | {{@faker.random.words(5)}}                        |success|

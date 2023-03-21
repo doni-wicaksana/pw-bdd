@@ -1,5 +1,5 @@
-@apiOnly
-@skip
+# @noBrowser
+# @skip
 Feature: An example of running an API with BDD.
 
   Scenario: Run single API request

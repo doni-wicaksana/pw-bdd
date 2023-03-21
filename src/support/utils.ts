@@ -1,22 +1,9 @@
-
-// import * as fs from 'fs';
-// class Dir {
-//   clear(directoryPath: string) {
-  
-//     // Hapus semua file dalam direktori
-//     fs.readdir(directoryPath, (err, files) => {
-//       if (err) throw err;
-  
-//       for (const file of files) {
-//         fs.unlink(`${directoryPath}/${file}`, (err) => {
-//           if (err) throw err;
-//         });
-//       }
-  
-//       console.error('Semua file dalam direktori berhasil dihapus');
-//     });
-  
-//   }
-// }
-// const dir = new Dir();
-// export default dir;
+// parse string
+export function stringParser(text:string, regex: RegExp, callback: (match: string) => string):string {
+    const match = text.match(regex);
+    match?.forEach((m) => {
+        let replacement = callback(m);
+        if (replacement) text = text.replace(m, replacement);
+    });
+    return text;
+}
