@@ -27,11 +27,13 @@ Given('set API request data:', async function (this: CustomWorld, data: DataTabl
 })
 
 When('send API request', async function (this: CustomWorld) {
-    await this.sendRequest();
+    // await this.sendRequest();
+    await this.sendAxiosRequest();
 })
 
 When('send API request and keep response to {string}', async function (this: CustomWorld, responseName: string) {
-    await this.sendRequest(responseName);
+    // await this.sendRequest(responseName);
+    await this.sendAxiosRequest(responseName);
 })
 
 When('save response data {string} to {string}', function (this: CustomWorld, path: string, variableName: string) {

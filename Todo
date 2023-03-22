@@ -7,8 +7,8 @@ TODO
 15. hapus video
 16. hapus traced
 17. tambahkan default config dari env
-20. faker
 21. record video untuk retry
+22. log api
 
 won't do:
 6. clean report at start
@@ -30,3 +30,4 @@ Done:
 18. read path pindahkan dari api step ke common function
 3. report
 9. compare two image, base on platform, browser, and size
+20. faker
