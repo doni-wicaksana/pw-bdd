@@ -3,12 +3,13 @@ import { Pickle } from '@cucumber/messages';
 import { BrowserContext, Page, APIRequestContext, request, Browser } from '@playwright/test';
 import { playwrightConfig as pwConfig } from './config';
 import path from 'path';
-import { existsSync, writeFileSync, readFileSync, createWriteStream, mkdirSync } from 'fs';
+import fs from 'fs';
 import { compareImages, ICompareResult } from './images';
 import { PNG } from 'pngjs';
 import { PixelmatchOptions } from 'pixelmatch';
 import { faker } from "@faker-js/faker";
 import { stringParser } from './utils';
+import axios from 'axios';
 
 export class CustomWorld extends World {
     scenario: Pickle;
@@ -77,11 +78,37 @@ export class CustomWorld extends World {
     async sendRequest(nameIt?: string): Promise<any> {
         const req = this.lastApiRequest.request;
         const response = await (await request.newContext()).fetch(req.url, req.config);
-        await response.json().then((v) => {
-            this.lastApiResponse = v;
-            if (nameIt) this.variables[nameIt] = v;
+        await response.json().then((resp) => {
+            this.lastApiResponse = resp;
+            if (nameIt) this.variables[nameIt] = resp;
             this.cleanRequest();
-            return v;
+            return resp;
+        });
+    }
+    async sendAxiosRequest(nameIt?: string): Promise<any> {
+        const req = this.lastApiRequest.request;
+        const reqInterceptor = axios.interceptors.request.use(
+            (config) => {
+                this.log(`${config.method} : ${axios.getUri(config)}
+${JSON.stringify({
+            method:config.method,
+            url:config.url,
+            params:config.params,
+            headers:config.headers,
+            data:config.data}, null, 2)}`);
+                return config;
+            },
+            (error) => {
+                return Promise.reject(error);
+            }
+        );
+        await axios(req.url,req.config).then((response) => {
+            this.lastApiResponse = response.data;
+            this.log(JSON.stringify({response:response.data},null,1));
+            if (nameIt) this.variables[nameIt] = response.data;
+            this.cleanRequest();
+            axios.interceptors.request.eject(reqInterceptor);
+            return response.data;
         });
     }
     //common
@@ -117,16 +144,16 @@ export class CustomWorld extends World {
         Object.assign(pixelmatchOpt, options);
 
         output = output || pwConfig.visualRegresion.saveDifferentAs || ["file", "attachment"];
-        if (existsSync(imagePath)) {
-            let oldImage = PNG.sync.read(readFileSync(imagePath));
+        if (fs.existsSync(imagePath)) {
+            let oldImage = PNG.sync.read(fs.readFileSync(imagePath));
             let newImage = PNG.sync.read(screenshot);
             await compareImages(oldImage, newImage, pixelmatchOpt)
                 .then(({ numDiffPixels, diff }) => {
                     result = { numDiffPixels, diff };
                     if (numDiffPixels) {
                         if (output.includes("file")) {
-                            mkdirSync(path.dirname(diffImagePath), { recursive: true });
-                            diff.pack().pipe(createWriteStream(diffImagePath));
+                            fs.mkdirSync(path.dirname(diffImagePath), { recursive: true });
+                            diff.pack().pipe(fs.createWriteStream(diffImagePath));
                         }
                         if (output.includes("attachment")) { this.attach(PNG.sync.write(diff), 'image/png'); }
                     }
@@ -136,8 +163,8 @@ export class CustomWorld extends World {
                 });
         }
         else {
-            mkdirSync(path.dirname(imagePath), { recursive: true });
-            writeFileSync(imagePath, screenshot);
+            fs.mkdirSync(path.dirname(imagePath), { recursive: true });
+            fs.writeFileSync(imagePath, screenshot);
             this.log(`Since there are no previous screenshots, this screenshot will be saved as a reference for future comparisons.`);
             this.attach(screenshot, 'image/png');
         }
