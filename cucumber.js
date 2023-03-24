@@ -1,6 +1,8 @@
 module.exports = {
   default: {
     parallel: 1,
+    retry: 1,
+    retryTagFilter: '@retry',
     requireModule: ['ts-node/register'],
     require: ['./src/**/*.ts', './features/steps/**/*.ts', './features/support/**/*.ts'],
     paths: ['./features/features/**/*.feature'],

@@ -11,20 +11,35 @@ import { faker } from "@faker-js/faker";
 import { stringParser } from './utils';
 import axios from 'axios';
 
+type tAPIRequest = {
+    url: string,
+    config: {
+        method?: string,
+        headers?: Record<string, any>,
+        params?: Record<string, any>,
+        data?: Record<string, any>,
+        // timeout?: number,
+        // withCredentials?: boolean,
+        // auth?: Record<string, any>,
+        // responseType?: string
+    }
+}
+type tAPIResponse = {
+    data?: {},
+    status?: number,
+    statusText?: string,
+    headers?: {},
+    // config?: {},
+    request?: {},
+}
 export class CustomWorld extends World {
     scenario: Pickle;
     browser: Browser;
     context: BrowserContext;
     page: Page;
     // lastApiContext:APIRequestContext;
-    lastApiRequest: Record<string, any> = {
-        request: {
-            url: "",
-            config: {}
-        },
-        response: {}
-    };
-    lastApiResponse: Record<string, any>;
+    apiRequest: tAPIRequest = { url: "", config: {} };
+    apiResponse: tAPIResponse;
     variables: Record<string, any> = {};
     withBrowser: boolean = true;
 
@@ -64,50 +79,61 @@ export class CustomWorld extends World {
         this.attach(`To trace, run this command in the terminal.
         npm run trace ${traceStopConfig.path}`);
     }
-
     //api
-    cleanRequest() {
-        this.lastApiRequest = {
-            request: {
-                url: "",
-                config: {}
-            },
-            response: {}
-        };
-    }
     async sendRequest(nameIt?: string): Promise<any> {
-        const req = this.lastApiRequest.request;
+        const req = this.apiRequest;
         const response = await (await request.newContext()).fetch(req.url, req.config);
-        await response.json().then((resp) => {
-            this.lastApiResponse = resp;
-            if (nameIt) this.variables[nameIt] = resp;
-            this.cleanRequest();
-            return resp;
-        });
+        const responseData = await response.json();
+        this.apiResponse = {
+            data: responseData,
+            status: response.status(),
+            statusText: response.statusText(),
+            headers: response.headers(),
+            //todo change with interceptor
+            request: {
+                url: req.url,
+                method: req.config.method,
+                headers: req.config.headers,
+                params: req.config.params,
+                data: req.config.data,
+            },
+        };
+
+        //>log
+        this.log(`${this.apiRequest.config.method} : ${response.url()}\n${JSON.stringify(this.apiResponse.request, null, 2)}`);
+        // const contentType: string = response.headers['content-type'];
+        // if (contentType.includes('application/json'))
+        this.log(`Response:\n${JSON.stringify(this.apiResponse, null, 2)}`);
+        //<log
+        if (nameIt) this.variables[nameIt] = response;
+        this.apiRequest = { url: "", config: {} };
+        return response;
     }
     async sendAxiosRequest(nameIt?: string): Promise<any> {
-        const req = this.lastApiRequest.request;
-        const reqInterceptor = axios.interceptors.request.use(
-            (config) => {
-                this.log(`${config.method} : ${axios.getUri(config)}
-${JSON.stringify({
-            method:config.method,
-            url:config.url,
-            params:config.params,
-            headers:config.headers,
-            data:config.data}, null, 2)}`);
-                return config;
-            },
-            (error) => {
-                return Promise.reject(error);
+        const req = this.apiRequest;
+        await axios(req.url, req.config).then((response) => {
+            // this.apiInfo.
+            this.apiResponse = {
+                data: response.data,
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers,
+                request: {
+                    url: response.config.url,
+                    method: response.config.method,
+                    headers: response.config.headers,
+                    params: response.config.params,
+                    data: response.config.data,
+                },
             }
-        );
-        await axios(req.url,req.config).then((response) => {
-            this.lastApiResponse = response.data;
-            this.log(JSON.stringify({response:response.data},null,1));
+            //>log
+            this.log(`${response.config.method} : ${axios.getUri(this.apiResponse.request)}\n${JSON.stringify(this.apiResponse.request, null, 2)}`);
+            // const contentType: string = response.headers['content-type'];
+            // if (contentType.includes('application/json'))
+            this.log(`Response:\n${JSON.stringify(this.apiResponse, null, 2)}`);
+            //<log
             if (nameIt) this.variables[nameIt] = response.data;
-            this.cleanRequest();
-            axios.interceptors.request.eject(reqInterceptor);
+            this.apiRequest = { url: "", config: {} };
             return response.data;
         });
     }
@@ -116,10 +142,10 @@ ${JSON.stringify({
         const matchAsAVar = parameter.match(/^{{\w+}}$/);
         if (matchAsAVar) return this.variables[parameter.replace(/{{(\w+)}}/, "$1")];//Return object not string
         else { //return as string
-            parameter = stringParser(parameter,/{{(\w+)}}/gm,(m)=>{
+            parameter = stringParser(parameter, /{{(\w+)}}/gm, (m) => {
                 return this.variables[m.replace(/{{(\w+)}}/, "$1")];
             });
-            parameter = stringParser(parameter,/{{@faker\.(.+)}}/gm,(m)=>{
+            parameter = stringParser(parameter, /{{@faker\.(.+)}}/gm, (m) => {
                 return faker.helpers.fake(m.replace(/{{@faker\.(.+)}}/, "{{$1}}"));
             });
             return parameter;

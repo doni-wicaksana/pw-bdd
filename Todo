@@ -8,7 +8,8 @@ TODO
 16. hapus traced
 17. tambahkan default config dari env
 21. record video untuk retry
-22. log api
+23. tambah assert statuscode 200
+24. json schema
 
 won't do:
 6. clean report at start
@@ -31,3 +32,4 @@ Done:
 3. report
 9. compare two image, base on platform, browser, and size
 20. faker
+22. log api

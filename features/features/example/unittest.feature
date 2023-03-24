@@ -1,5 +1,5 @@
-# @noBrowser
-# @skip
+@noBrowser
+@skip
 Feature: Unit test
 
   Scenario Outline: test save object part by path to variable
