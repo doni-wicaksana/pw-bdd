@@ -3,10 +3,21 @@
 		"prefix": "set API",
 		"body": [
 			"Given set API method \"${1:method}\" and endpoint \"${2:url}\"",
-			"Given set API request data:",
+			"Given set API request:",
 			"\t| type | key | value |",
 			"\t| ${3:(params/header/data)} | $4 | $5 |",
 			"When send API request"
+		],
+		"description": "Bdd scenario for API"
+	},
+	
+	"set API payload/header/params": {
+		"prefix": "set API payload",
+		"body": [
+			"* set API payload:",
+			"\"\"\"",
+			"\t${1:data}",
+			"\"\"\"",
 		],
 		"description": "Bdd scenario for API"
 	},
