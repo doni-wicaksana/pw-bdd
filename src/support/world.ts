@@ -10,6 +10,7 @@ import { PixelmatchOptions } from 'pixelmatch';
 import { faker } from "@faker-js/faker";
 import { stringParser } from './utils';
 import axios from 'axios';
+import BingPage from "../../features/pageobjects/bing";
 
 type tAPIRequest = {
     url: string,
@@ -43,6 +44,9 @@ export class CustomWorld extends World {
     variables: Record<string, any> = {};
     withBrowser: boolean = true;
 
+    //pages
+    public bingPage: BingPage;
+
     constructor(options: IWorldOptions) {
         super(options);
         /*prevent update cause: this two option set by BeforAll which Browser already launch =>*/
@@ -56,6 +60,7 @@ export class CustomWorld extends World {
         if (this.withBrowser) {
             this.browser = browser;
             await this.newTab();
+            this.bingPage = new BingPage(this.page);
         }
     }
     async newTab() {

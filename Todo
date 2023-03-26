@@ -10,6 +10,7 @@ TODO
 21. record video untuk retry
 23. tambah assert statuscode 200
 24. json schema
+25. page object model
 
 won't do:
 6. clean report at start
