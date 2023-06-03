@@ -12,15 +12,15 @@ Given('set API request:', async function (this: CustomWorld, data: DataTable) {
     data.hashes().forEach((row) => {
         if (["header", "h"].indexOf(row.type) !== -1) {
             if (!reqConfig.headers) reqConfig.headers = {};
-            reqConfig.headers[row.key] = row.value;
+            reqConfig.headers[row.key] = this.parseStepParameter(row.value);
         }
         if (["payload", "body", "data", "b"].indexOf(row.type) !== -1) {
             if (!reqConfig.data) reqConfig.data = {};
-            reqConfig.data[row.key] = row.value;
+            reqConfig.data[row.key] = this.parseStepParameter(row.value);
         }
         if (["parameter", "params", "p"].indexOf(row.type) !== -1) {
             if (!reqConfig.params) reqConfig.params = {};
-            reqConfig.params[row.key] = row.value;
+            reqConfig.params[row.key] = this.parseStepParameter(row.value);
         }
         // https://playwright.dev/docs/api/class-apirequestcontext#api-request-context-fetch
     })
