@@ -38,7 +38,7 @@ export class CustomWorld extends World {
     browser: Browser;
     context: BrowserContext;
     page: Page;
-    // lastApiContext:APIRequestContext;
+    apiContext:APIRequestContext;
     apiRequest: tAPIRequest = { url: "", config: {} };
     apiResponse: tAPIResponse;
     variables: Record<string, any> = {};
@@ -57,6 +57,8 @@ export class CustomWorld extends World {
     async init(scenario: Pickle, browser: Browser) {
         this.scenario = scenario;
         this.scenario["name_"] = scenario.name.replace(/\W/g, "_");
+        //TODO: kalau bersama brower sebaiknya tidak menggunakan api context tapi browser context agar cookies nya gabung.
+        this.apiContext = await request.newContext();
         if (this.withBrowser) {
             this.browser = browser;
             await this.newTab();
@@ -87,7 +89,7 @@ export class CustomWorld extends World {
     //api
     async sendRequest(nameIt?: string): Promise<any> {
         const req = this.apiRequest;
-        const response = await (await request.newContext()).fetch(req.url, req.config);
+        const response = await this.apiContext.fetch(req.url, req.config);
         const responseData = await response.json();
         this.apiResponse = {
             data: responseData,
